@@ -10,6 +10,7 @@
 
 class FusionEKF {
 public:
+
   /**
   * Constructor.
   */
@@ -31,6 +32,14 @@ public:
   KalmanFilter ekf_;
 
 private:
+
+   /**
+   * Convert state vector to radar measurement space.
+   * @param state        4d state vector
+   * @param measurements Resulting measurement vector
+   */
+  static bool radar_meas_fct( const VectorXd& state, VectorXd& measurements );
+
   // check whether the tracking toolbox was initiallized or not (first measurement)
   bool is_initialized_;
 

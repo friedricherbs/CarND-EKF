@@ -12,6 +12,7 @@ using namespace std;
 
 class Tools {
 public:
+
   /**
   * Constructor.
   */

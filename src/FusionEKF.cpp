@@ -18,18 +18,13 @@ FusionEKF::FusionEKF() {
 
   // initializing matrices
   R_laser_ = MatrixXd(2, 2);
-  R_laser_ << 0.0001, 0,
-              0, 0.0001;
-  /*R_laser_ << 0.06, 0,
-              0, 0.04;*/
+  R_laser_ << 0.0225, 0,
+              0,      0.0225;
 
   R_radar_ = MatrixXd(3, 3);
-  R_radar_ << 0.01, 0,    0,
-              0,    1.0e-6, 0,
-              0,    0,    0.01;
-  /*R_radar_ << 0.04, 0,    0,
-      0,    3.2e-6, 0,
-      0,    0,    0.01;*/
+  R_radar_ << 0.09, 0,      0,
+              0,    0.0009, 0,
+              0,    0,      0.09;
 
   H_laser_ = MatrixXd(2, 4);
   H_laser_ << 1,0,0,0,
@@ -65,8 +60,8 @@ FusionEKF::FusionEKF() {
 	         0, 0, 0, 1;
 
   //set the acceleration noise components
-  noise_ax = 40; //0.005; 
-  noise_ay = 40; //0.008;
+  noise_ax = 9.0; //0.005; 
+  noise_ay = 9.0; //0.008;
 }
 
 /**
@@ -215,11 +210,29 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.R_ = MatrixXd(3, 3);  
       ekf_.R_ = R_radar_;
 
-      ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+      ekf_.UpdateEKF(measurement_pack.raw_measurements_, &radar_meas_fct);
   } else {
+      ekf_.R_ = MatrixXd(2, 2);
       ekf_.R_ = R_laser_;
+
+      ekf_.H_ = MatrixXd(2, 4);
       ekf_.H_ = H_laser_;
 
-      ekf_.Update(measurement_pack.raw_measurements_);
+      //ekf_.Update(measurement_pack.raw_measurements_);
   }
+}
+
+bool FusionEKF::radar_meas_fct(const VectorXd& state, VectorXd& measurements)
+{
+    bool ret_val           = false;
+    const double ro_state  = sqrt(state(0)*state(0)+state(1)*state(1));
+    if (abs(ro_state) > 0.0001)
+    {
+        ret_val = true;
+        const double theta_state  = atan2(state(1),state(0));
+        const double ro_dot_state = (state(0)*state(2)+state(1)*state(3))/ro_state;
+
+        measurements << ro_state, theta_state, ro_dot_state;
+    }
+    return ret_val;
 }

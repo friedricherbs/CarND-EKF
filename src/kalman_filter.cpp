@@ -36,17 +36,13 @@ void KalmanFilter::Update(const VectorXd &z) {
 	P_ = (I - K * H_) * P_;
 }
 
-void KalmanFilter::UpdateEKF(const VectorXd &z) {
+void KalmanFilter::UpdateEKF(const VectorXd &z, const MeasFctPointer& meas_fct) 
+{
 
-    const double ro_state     = sqrt(x_(0)*x_(0)+x_(1)*x_(1));
-    const double theta_state  = atan2(x_(1),x_(0));
-
-    if (abs(ro_state) > 0.0001)
+    VectorXd z_pred(3);
+    const bool data_set = (meas_fct)(x_, z_pred);
+    if (data_set)
     {
-        const double ro_dot_state = (x_(0)*x_(2)+x_(1)*x_(3))/ro_state;
-        VectorXd z_pred(3);
-        z_pred << ro_state, theta_state, ro_dot_state;
-
         const VectorXd y = z - z_pred;
         const MatrixXd Ht = H_.transpose();
         const MatrixXd S = H_ * P_ * Ht + R_;

@@ -8,6 +8,9 @@ using Eigen::VectorXd;
 class KalmanFilter {
 public:
 
+  /// Typedef for measurement function pointer.
+  typedef bool (*MeasFctPointer)(const VectorXd& state, VectorXd& measurements);
+
   // state vector
   VectorXd x_;
 
@@ -63,9 +66,10 @@ public:
 
   /**
    * Updates the state by using Extended Kalman Filter equations
-   * @param z  The measurement at k+1
+   * @param z         The measurement at k+1
+   * @param meas_fct  Measurement function mapping state to measurement space
    */
-  void UpdateEKF(const VectorXd &z);
+  void UpdateEKF(const VectorXd &z, const MeasFctPointer& meas_fct);
 
 
 };
