@@ -218,7 +218,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.H_ = MatrixXd(2, 4);
       ekf_.H_ = H_laser_;
 
-      //ekf_.Update(measurement_pack.raw_measurements_);
+      ekf_.Update(measurement_pack.raw_measurements_);
   }
 }
 
